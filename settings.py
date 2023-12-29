@@ -23,6 +23,3 @@ FIELDS_MODEL_TO_API_DICT = {
 
 # utils
 ID_LENGTH = 6
-
-# models
-DOMAIN = 'http://localhost:80/'
