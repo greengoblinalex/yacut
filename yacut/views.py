@@ -15,13 +15,10 @@ def index_view():
         custom_id = form.custom_id.data
 
         if URLMap.query.filter_by(short=custom_id).first():
-            flash('Такой id уже существует, пожалуйста, выберите другой или оставьте поле пустым')
+            flash('Предложенный вариант короткой ссылки уже существует.')
             return render_template('url_map.html', form=form)
 
-        while True:
-            unique_short_id = get_unique_short_id(custom_id)
-            if not URLMap.query.filter_by(short=unique_short_id).first():
-                break
+        unique_short_id = get_unique_short_id(custom_id)
 
         url_map = URLMap(
             original=form.original_link.data,
@@ -37,7 +34,7 @@ def index_view():
     return render_template('url_map.html', **context)
 
 
-@app.route('/<string:short_id>/')
+@app.route('/<string:short_id>')
 def redirect_to_original_url_view(short_id):
     url_map = URLMap.query.filter_by(short=short_id).first()
     if url_map is None:

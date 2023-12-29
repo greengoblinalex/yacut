@@ -1,11 +1,15 @@
 import random
 
+from yacut.models import URLMap
 from settings import ALLOW_SYMBOLS, ID_LENGTH
 
 
 def get_unique_short_id(custom_id=None):
     if not custom_id:
-        custom_id = ''.join(random.sample(ALLOW_SYMBOLS, ID_LENGTH))
+        while True:
+            custom_id = ''.join(random.sample(ALLOW_SYMBOLS, ID_LENGTH))
+            if not URLMap.query.filter_by(short=custom_id).first():
+                break
     return custom_id
 
 
