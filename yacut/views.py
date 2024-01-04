@@ -3,7 +3,7 @@ from flask import render_template, redirect, flash, abort
 from yacut import app, db
 from yacut.forms import URLMapForm
 from yacut.models import URLMap
-from yacut.utils import get_unique_short_id
+from yacut.utils import get_unique_short_id, is_empty_string
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -13,16 +13,16 @@ def index_view():
 
     if form.validate_on_submit():
         custom_id = form.custom_id.data
-
-        if URLMap.query.filter_by(short=custom_id).first():
-            flash('Предложенный вариант короткой ссылки уже существует.')
-            return render_template('url_map.html', form=form)
-
-        unique_short_id = get_unique_short_id(custom_id)
+        if is_empty_string(custom_id):
+            custom_id = get_unique_short_id()
+        else:
+            if URLMap.query.filter_by(short=custom_id).first():
+                flash('Предложенный вариант короткой ссылки уже существует.')
+                return render_template('url_map.html', form=form)
 
         url_map = URLMap(
             original=form.original_link.data,
-            short=unique_short_id
+            short=custom_id
         )
         db.session.add(url_map)
         db.session.commit()

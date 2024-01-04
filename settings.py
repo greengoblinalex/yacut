@@ -16,6 +16,8 @@ ALLOW_SYMBOLS = [
     'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
 ]
+
+# models
 FIELDS_MODEL_TO_API_DICT = {
     'url': 'original',
     'custom_id': 'short'
