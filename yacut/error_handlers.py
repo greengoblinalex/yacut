@@ -1,6 +1,7 @@
-from flask import render_template, jsonify
+from flask import render_template, jsonify, session, flash
 
 from yacut import app
+from yacut.forms import URLMapForm
 
 
 class InvalidAPIUsage(Exception):
@@ -19,6 +20,13 @@ class InvalidAPIUsage(Exception):
 @app.errorhandler(InvalidAPIUsage)
 def invalid_api_usage(error):
     return jsonify(error.to_dict()), error.status_code
+
+
+@app.errorhandler(409)
+def url_map_already_exists(error):
+    form = session.get('form', URLMapForm())
+    flash('Предложенный вариант короткой ссылки уже существует.')
+    return render_template('url_map.html', form=form), 409
 
 
 @app.errorhandler(404)

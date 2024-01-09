@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import URLField, StringField, SubmitField, ValidationError
 from wtforms.validators import DataRequired, Length, Optional
 
-from settings import URL_LENGTH, CUSTOM_ID_LENGTH, ALLOW_SYMBOLS
+from settings import URL_LENGTH, CUSTOM_ID_LENGTH
 
 
 class URLMapForm(FlaskForm):
@@ -18,5 +18,7 @@ class URLMapForm(FlaskForm):
     submit = SubmitField('Создать')
 
     def validate_custom_id(self, field):
-        if any(char not in ALLOW_SYMBOLS for char in field.data):
+        from yacut.validators import validate_custom_id_data
+
+        if validate_custom_id_data(field.data):
             raise ValidationError('Указано недопустимое имя для короткой ссылки')

@@ -1,9 +1,10 @@
-from flask import render_template, redirect, flash, abort
+from flask import render_template, redirect, abort
 
-from yacut import app, db
+from yacut import app
 from yacut.forms import URLMapForm
 from yacut.models import URLMap
-from yacut.utils import get_unique_short_id, is_empty_string
+from yacut.crud import create_url_map, get_url_map_by_id
+from yacut.validators import validate_custom_id
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -12,20 +13,16 @@ def index_view():
     url_map = None
 
     if form.validate_on_submit():
-        custom_id = form.custom_id.data
-        if is_empty_string(custom_id):
-            custom_id = get_unique_short_id()
-        else:
-            if URLMap.query.filter_by(short=custom_id).first():
-                flash('Предложенный вариант короткой ссылки уже существует.')
-                return render_template('url_map.html', form=form)
+        custom_id = validate_custom_id(form.custom_id.data)
+
+        if get_url_map_by_id(custom_id):
+            abort(409)
 
         url_map = URLMap(
             original=form.original_link.data,
             short=custom_id
         )
-        db.session.add(url_map)
-        db.session.commit()
+        create_url_map(url_map)
 
     context = {
         'form': form,
@@ -36,7 +33,7 @@ def index_view():
 
 @app.route('/<string:short_id>')
 def redirect_to_original_url_view(short_id):
-    url_map = URLMap.query.filter_by(short=short_id).first()
+    url_map = get_url_map_by_id(short_id)
     if url_map is None:
         abort(404)
     return redirect(url_map.original)
